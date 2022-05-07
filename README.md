@@ -16,9 +16,8 @@ This game was created using:
 
   
 <ins><strong>Timeline<strong><ins>
-1. Add obstacles
-2. Randomize velocity and location of obstacles
-3. Add height limit on how high the player can jump
-4. Restrict player jump amount to one
-5. Add start and game over screen
-6. Polish assets
+1. create gamestates for different color user choices
+2. create buttons for user interactions and choice
+3. create rules/controls page
+4. create artist statement page
+5. add sound to project

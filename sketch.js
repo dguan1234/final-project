@@ -13,6 +13,10 @@ var x2;
 let gameState = 'start';
 let scrollSpeed;
 let score = 0;
+let buttonBlackChoose
+let buttonYellowChoose
+let buttonBlueChoose
+let button
 
 function preload() {
   potholeImage = loadImage("assets/pothole0001.png")
@@ -20,6 +24,9 @@ function preload() {
   bussin = loadAnimation("assets/bus0001.png", "assets/bus0002.png")
   startMenu = loadImage("assets/gamestart.png")
   endMenu = loadImage("assets/gameend.png")
+  selectMenu = loadImage("assets/game-shoeselect.png")
+  creditsMenu = loadImage("assets/credits.png")
+  controlsMenu = loadImage("assets/game-controls.png")
 }
 
 function setup() {
@@ -27,6 +34,11 @@ function setup() {
   bozo = createSprite(100, 400);
   bozo.addAnimation('running', 'assets/running0001.png', 'assets/running0002.png');
   bozo.addAnimation('jumping', 'assets/jumping0001.png');
+  bozo.addAnimation('runningYellow', 'assets/running-yellow-0001.png', 'assets/running-yellow-0002.png')
+  bozo.addAnimation('jumpingYellow', 'assets/jumping-yellow-0001.png')
+  bozo.addAnimation('runningBlue', 'assets/running-blue-0001.png', 'assets/running-blue-0002.png');
+  bozo.addAnimation('jumpingBlue', 'assets/jumping-blue-0001.png');
+
   bozo.setCollider('rectangle', 0, 0, 100, 150);
   ground = createSprite(100, 450);
   ground.addAnimation('normal', 'assets/small_platform0001.png', 'assets/small_platform0003.png');
@@ -43,25 +55,76 @@ function draw() {
     case 'start':
       gameStart()
       break;
+    case 'controls':
+      gameControls()
+      break;
+    case 'selection':
+      gameSelection()
+      break;
     case 'play':
       gamePlay()
       break;
+    case 'playYellow':
+      gamePlayYellow()
+      break;
+    case 'playBlue':
+      gamePlayBlue()
+      break;
     case 'end':
       gameEnd()
+      break;
+    case 'credits':
+      gameCredits()
       break;
   }
 }
 
 function keyPressed() {
-  if (gameState === 'start' || gameState === 'end') {
+  if (gameState === 'start') {
     if (key === 'G' || key === 'g') {
-      gameState = 'play';
+      gameState = 'controls';
+    }
+  }
+  if(gameState === 'controls') {
+    if(key === 'C' || key === 'c'){
+      gameState = 'selection'
+    }
+  }
+
+  if (gameState === 'end') {
+    if (key === 'G' || key === 'g') {
+      gameState = 'selection';
+    } else if (key === 'c' || key === 'C')
+      gameState = 'credits';
+  }
+
+  if (gameState === 'credits'){
+    if (key === 'Q' || key === 'q'){
+      gameState = 'start';
+    }
+  }
+
+  if (gameState === 'selection') {
+    if (key === 'Q' || key === 'q') {
+      gameState = 'play'
+      bozo.position.x = 100
+      bozo.position.y = 400
+      score = 0
+    } else if (key === 'W' || key === 'w') {
+      gameState = 'playYellow'
+      bozo.position.x = 100
+      bozo.position.y = 400
+      score = 0
+    } else if (key === 'E' || key === 'e') {
+      gameState = 'playBlue'
       bozo.position.x = 100
       bozo.position.y = 400
       score = 0
     }
   }
 }
+
+
 
 function backgroundMoving() {
   scrollSpeed = (10 + 3 * score / 100)
@@ -79,7 +142,10 @@ function backgroundMoving() {
 
 function gameStart() {
   image(startMenu, 0, 0)
-  scale(100);
+}
+
+function gameSelection() {
+  image(selectMenu, 0, 0)
 }
 
 function gamePlay() {
@@ -94,6 +160,66 @@ function gamePlay() {
   }
   if (mouseWentDown(LEFT)) {
     jump()
+  }
+  drawSprites();
+  for (var i = 0; i < potholesGroup.length; i++)
+    if (potholesGroup[i].position.x < bozo.position.x - width / 2) {
+      potholesGroup[i].remove()
+    }
+  if (bozo.overlap(potholesGroup)) {
+    gameEnd()
+  }
+  spawnPotholes()
+  push()
+  textSize(20)
+  fill(255, 255, 255)
+  text("Score: " + score, 30, 50);
+  pop()
+}
+
+function gamePlayYellow() {
+
+  backgroundMoving()
+  score = score + Math.round(getFrameRate() / 60);
+  animation(bussin, 850, 175)
+  bozo.collide(sky)
+  bozo.velocity.y += GRAVITY;
+  if (bozo.collide(ground)) {
+    bozo.velocity.y = 0;
+    bozo.changeAnimation('runningYellow');
+  }
+  if (mouseWentDown(LEFT)) {
+    jumpYellow()
+  }
+  drawSprites();
+  for (var i = 0; i < potholesGroup.length; i++)
+    if (potholesGroup[i].position.x < bozo.position.x - width / 2) {
+      potholesGroup[i].remove()
+    }
+  if (bozo.overlap(potholesGroup)) {
+    gameEnd()
+  }
+  spawnPotholes()
+  push()
+  textSize(20)
+  fill(255, 255, 255)
+  text("Score: " + score, 30, 50);
+  pop()
+}
+
+function gamePlayBlue() {
+
+  backgroundMoving()
+  score = score + Math.round(getFrameRate() / 60);
+  animation(bussin, 850, 175)
+  bozo.collide(sky)
+  bozo.velocity.y += GRAVITY;
+  if (bozo.collide(ground)) {
+    bozo.velocity.y = 0;
+    bozo.changeAnimation('runningBlue');
+  }
+  if (mouseWentDown(LEFT)) {
+    jumpBlue()
   }
   drawSprites();
   for (var i = 0; i < potholesGroup.length; i++)
@@ -140,4 +266,28 @@ function jump() {
     bozo.animation.rewind();
     bozo.velocity.y = -JUMP;
   }
+}
+
+function jumpYellow() {
+  if (bozo.position.y >= 338.5) {
+    bozo.changeAnimation("jumpingYellow");
+    bozo.animation.rewind();
+    bozo.velocity.y = -JUMP;
+  }
+}
+
+function jumpBlue() {
+  if (bozo.position.y >= 338.5) {
+    bozo.changeAnimation("jumpingBlue");
+    bozo.animation.rewind();
+    bozo.velocity.y = -JUMP;
+  }
+}
+
+function gameCredits() {
+  image(creditsMenu, 0, 0)
+}
+
+function gameControls() {
+  image(controlsMenu, 0, 0)
 }

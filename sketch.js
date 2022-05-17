@@ -27,6 +27,10 @@ function preload() {
   selectMenu = loadImage("assets/game-shoeselect.png")
   creditsMenu = loadImage("assets/credits.png")
   controlsMenu = loadImage("assets/game-controls.png")
+  jumpSound = loadSound("assets/jump-sound.mp3")
+  failSound = loadSound("assets/gameover-sound.mp3")
+  keySound = loadSound("assets/key-press.mp3")
+  bgm = loadSound("assets/background-music.mp3")
 }
 
 function setup() {
@@ -63,12 +67,15 @@ function draw() {
       break;
     case 'play':
       gamePlay()
+
       break;
     case 'playYellow':
       gamePlayYellow()
+
       break;
     case 'playBlue':
       gamePlayBlue()
+
       break;
     case 'end':
       gameEnd()
@@ -83,24 +90,29 @@ function keyPressed() {
   if (gameState === 'start') {
     if (key === 'G' || key === 'g') {
       gameState = 'controls';
+      keySound.play()
     }
   }
   if(gameState === 'controls') {
     if(key === 'C' || key === 'c'){
       gameState = 'selection'
+      keySound.play()
     }
   }
 
   if (gameState === 'end') {
     if (key === 'G' || key === 'g') {
       gameState = 'selection';
+      keySound.play()
     } else if (key === 'c' || key === 'C')
       gameState = 'credits';
+      keySound.play()
   }
 
   if (gameState === 'credits'){
     if (key === 'Q' || key === 'q'){
       gameState = 'start';
+      keySound.play()
     }
   }
 
@@ -110,16 +122,25 @@ function keyPressed() {
       bozo.position.x = 100
       bozo.position.y = 400
       score = 0
+      keySound.play()
+      bgm.play();
+
     } else if (key === 'W' || key === 'w') {
       gameState = 'playYellow'
       bozo.position.x = 100
       bozo.position.y = 400
       score = 0
+      keySound.play()
+        bgm.play();
+
     } else if (key === 'E' || key === 'e') {
       gameState = 'playBlue'
       bozo.position.x = 100
       bozo.position.y = 400
       score = 0
+      keySound.play()
+        bgm.play();
+
     }
   }
 }
@@ -146,9 +167,11 @@ function gameStart() {
 
 function gameSelection() {
   image(selectMenu, 0, 0)
+  failSound.stop()
 }
 
 function gamePlay() {
+
   backgroundMoving()
   score = score + Math.round(getFrameRate() / 60);
   animation(bussin, 850, 175)
@@ -168,6 +191,8 @@ function gamePlay() {
     }
   if (bozo.overlap(potholesGroup)) {
     gameEnd()
+    failSound.setVolume(0.2)
+    failSound.play()
   }
   spawnPotholes()
   push()
@@ -198,6 +223,8 @@ function gamePlayYellow() {
     }
   if (bozo.overlap(potholesGroup)) {
     gameEnd()
+    failSound.setVolume(0.3)
+    failSound.play()
   }
   spawnPotholes()
   push()
@@ -228,6 +255,8 @@ function gamePlayBlue() {
     }
   if (bozo.overlap(potholesGroup)) {
     gameEnd()
+    failSound.setVolume(0.3)
+    failSound.play()
   }
   spawnPotholes()
   push()
@@ -249,6 +278,7 @@ function spawnPotholes() {
 }
 
 function gameEnd() {
+  bgm.stop();
   gameState = 'end'
   image(endMenu, 0, 0)
   push()
@@ -265,6 +295,8 @@ function jump() {
     bozo.changeAnimation("jumping");
     bozo.animation.rewind();
     bozo.velocity.y = -JUMP;
+    jumpSound.play();
+    jumpSound.setVolume(0.1);
   }
 }
 
@@ -273,6 +305,8 @@ function jumpYellow() {
     bozo.changeAnimation("jumpingYellow");
     bozo.animation.rewind();
     bozo.velocity.y = -JUMP;
+    jumpSound.play();
+    jumpSound.setVolume(0.1);
   }
 }
 
@@ -281,11 +315,14 @@ function jumpBlue() {
     bozo.changeAnimation("jumpingBlue");
     bozo.animation.rewind();
     bozo.velocity.y = -JUMP;
+    jumpSound.play();
+    jumpSound.setVolume(0.1);
   }
 }
 
 function gameCredits() {
   image(creditsMenu, 0, 0)
+    failSound.stop()
 }
 
 function gameControls() {
